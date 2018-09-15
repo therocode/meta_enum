@@ -29,13 +29,20 @@ constexpr size_t nextEnumCommaOrEnd(size_t start, std::string_view enumString)
         return brackets != 0 || quote;
     };
 
-    auto feedCounters = [&brackets, &quote, lastChar] (char c)
+    auto feedCounters = [&brackets, &quote, &lastChar] (char c)
     {
+        if(quote)
+        {
+            if(lastChar != '\\' && c == '"') //ignore " if they are backslashed
+                quote = false;
+            return;
+        }
+
         switch(c)
         {
             case '"':
                 if(lastChar != '\\') //ignore " if they are backslashed
-                    quote = !quote;
+                    quote = true;
                 break;
             case '(':
             case '<':
@@ -53,7 +60,7 @@ constexpr size_t nextEnumCommaOrEnd(size_t start, std::string_view enumString)
     };
 
     size_t current = start;
-    for(; current < enumString.size() && (isNested() || enumString[current] != ','); ++current)
+    for(; current < enumString.size() && (isNested() || (enumString[current] != ',')); ++current)
     {
         feedCounters(enumString[current]);
         lastChar = enumString[current];
@@ -186,7 +193,12 @@ constexpr std::array<EnumType, size> resolveEnumValuesArray(const std::initializ
 
 ////USAGE:
 
-meta_enum(Hahas, int32_t, Hi, Ho= 2, Hu =     4,
+constexpr int getTwo(int a, int b, int c)
+{
+    return 2;
+}
+
+meta_enum(Hahas, int32_t, Hi, Ho= getTwo(1, {(2, ")h(),,\"ej", 1)}, 4), Hu =     4,
 He);
 
 //declares enum as Hahas like usual.
@@ -194,8 +206,9 @@ He);
 
 int main()
 {
+    static_assert(Hahas_meta.members.size() == 4);
     static_assert(Hahas_meta.members[0].string == "Hi");
-    static_assert(Hahas_meta.members[1].string == " Ho= 2");
+    static_assert(Hahas_meta.members[1].string == " Ho= getTwo(1, {(2, \")h(),,\\\"ej\", 1)}, 4)");
     static_assert(Hahas_meta.members[2].string == " Hu = 4");
     static_assert(Hahas_meta.members[3].string == " He");
 
@@ -248,3 +261,4 @@ struct T1
 //parse enum member name
 
 //errors on clang :'(
+
