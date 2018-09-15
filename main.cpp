@@ -107,7 +107,7 @@ constexpr EnumMeta<EnumType, size> parseEnumMeta(std::string_view in, const std:
     {
         size_t currentStringEnd = nextEnumCommaOrEnd(currentStringStart + 1, in);
         size_t currentStringSize = currentStringEnd - currentStringStart;
-        
+
         if(currentStringStart != 0)
         {
             ++currentStringStart;
@@ -170,20 +170,15 @@ constexpr std::array<EnumType, size> resolveEnumValuesArray(const std::initializ
     enum Type { __VA_ARGS__};\
     using Type##_underlying_type = int;\
     constexpr static size_t Type##_internal_size = countEnumMembers(#__VA_ARGS__);\
-    struct Type##_internal_emulator\
-    {\
-        constexpr std::array<Type, Type##_internal_size> emulateEnumValues()\
-        {\
-            using IntWrapperType = IntWrapper<Type##_underlying_type>;\
-            IntWrapperType __VA_ARGS__;\
-            return resolveEnumValuesArray<Type, Type##_underlying_type, Type##_internal_size>({__VA_ARGS__});\
-        }\
-    };\
-    constexpr static auto Type##_meta = parseEnumMeta<Type, Type##_internal_size>(#__VA_ARGS__, Type##_internal_emulator{}.emulateEnumValues());
+    constexpr static auto Type##_meta = parseEnumMeta<Type, Type##_internal_size>(#__VA_ARGS__, []() {\
+        using IntWrapperType = IntWrapper<Type##_underlying_type>;\
+        IntWrapperType __VA_ARGS__;\
+        return resolveEnumValuesArray<Type, Type##_underlying_type, Type##_internal_size>({__VA_ARGS__});\
+    }());
 
 ////USAGE:
 
-meta_enum(Hahas, Hi, Ho= 2, Hu =     4, 
+meta_enum(Hahas, Hi, Ho= 2, Hu =     4,
 He);
 
 //declares enum as Hahas like usual.
@@ -218,19 +213,33 @@ int main()
     {
         std::cout << enumMember.string << "\n";
     }
+
+    meta_enum(TEnum, One, Two
+    =
+    0b11010101, Three
+    );
 }
 
-////TODO
-
-/* Errors with enum nested in struct... something about constexpr not being used from non-complete classes
-struct T
+struct T1
 {
     meta_enum(TEnum, One, Two
     =
     0b11010101, Three
     );
 };
-*/
+
+struct T2
+{
+    struct T22
+    {
+        meta_enum(TEnum, One, Two
+        =
+        0b11010101, Three
+        );
+    };
+};
+
+// TODO
 
 //enum class support
 
