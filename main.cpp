@@ -166,19 +166,27 @@ constexpr std::array<EnumType, size> resolveEnumValuesArray(const std::initializ
     return result;
 }
 
-#define meta_enum(Type, ...)\
-    enum Type { __VA_ARGS__};\
-    using Type##_underlying_type = int;\
+#define meta_enum(Type, UnderlyingType, ...)\
+    enum Type : UnderlyingType { __VA_ARGS__};\
     constexpr static size_t Type##_internal_size = countEnumMembers(#__VA_ARGS__);\
     constexpr static auto Type##_meta = parseEnumMeta<Type, Type##_internal_size>(#__VA_ARGS__, []() {\
-        using IntWrapperType = IntWrapper<Type##_underlying_type>;\
+        using IntWrapperType = IntWrapper<UnderlyingType>;\
         IntWrapperType __VA_ARGS__;\
-        return resolveEnumValuesArray<Type, Type##_underlying_type, Type##_internal_size>({__VA_ARGS__});\
+        return resolveEnumValuesArray<Type, UnderlyingType, Type##_internal_size>({__VA_ARGS__});\
+    }());
+
+#define meta_enum_class(Type, UnderlyingType, ...)\
+    enum class Type : UnderlyingType { __VA_ARGS__};\
+    constexpr static size_t Type##_internal_size = countEnumMembers(#__VA_ARGS__);\
+    constexpr static auto Type##_meta = parseEnumMeta<Type, Type##_internal_size>(#__VA_ARGS__, []() {\
+        using IntWrapperType = IntWrapper<UnderlyingType>;\
+        IntWrapperType __VA_ARGS__;\
+        return resolveEnumValuesArray<Type, UnderlyingType, Type##_internal_size>({__VA_ARGS__});\
     }());
 
 ////USAGE:
 
-meta_enum(Hahas, Hi, Ho= 2, Hu =     4,
+meta_enum(Hahas, int32_t, Hi, Ho= 2, Hu =     4,
 He);
 
 //declares enum as Hahas like usual.
@@ -213,35 +221,29 @@ int main()
     {
         std::cout << enumMember.string << "\n";
     }
+    std::cout << "member values: \n";
+    for(const auto& enumMember : Hahas_meta.members)
+    {
+        std::cout << enumMember.value << "\n";
+    }
+    std::cout << "member names: \n";
+    for(const auto& enumMember : Hahas_meta.members)
+    {
+        std::cout << enumMember.name << "\n";
+    }
 
-    meta_enum(TEnum, One, Two
-    =
-    0b11010101, Three
-    );
+    meta_enum_class(Nested, uint8_t, One,Two,Three);
 }
 
 struct T1
 {
-    meta_enum(TEnum, One, Two
+    meta_enum_class(Nested, size_t, One, Two
     =
     0b11010101, Three
     );
 };
 
-struct T2
-{
-    struct T22
-    {
-        meta_enum(TEnum, One, Two
-        =
-        0b11010101, Three
-        );
-    };
-};
-
 // TODO
-
-//enum class support
 
 //parse enum member name
 
