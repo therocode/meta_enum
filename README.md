@@ -1,12 +1,21 @@
-# Meta Enum
+# Meta Enum - Static reflection on enums in C++17
 
 ## Brief
-A way to declare enums so that meta-information about the enum such as names and indices of the enum values is available as constexpr facilities.
-This can be used to get basic compile time reflection of enums.
 
+Single-header facility for compile time reflection of enums in C++17.
+
+### Features
+ * Automatic string conversion of enum entries
+ * Tracking of enum size - i.e. member count
+ * Look up enum entries by index
+ * Convenience functions for converting between all of the above
+ * Keeps track of the C++ code used to declare the enums
+ * Single header standard C++17 magic.
+
+### Compiled Example
 See compiled code at: https://godbolt.org/z/TaPqPa
 
-Tested on:
+### Tested On
  * gcc 7.3 - works
  * gcc 8.1 - works
  * gcc 8.2 - works
