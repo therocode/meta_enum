@@ -75,27 +75,6 @@ constexpr size_t nextEnumCommaOrEnd(size_t start, std::string_view enumString)
     return current;
 }
 
-constexpr size_t countEnumMembers(std::string_view in)
-{
-    size_t result = 0;
-
-    size_t currentStringIndex = 0;
-    char current = ',';
-
-    while(current == ',')
-    {
-        ++result;
-        currentStringIndex = nextEnumCommaOrEnd(currentStringIndex + 1, in);
-
-        if(currentStringIndex == in.size())
-            break;
-
-        current = in[currentStringIndex];
-    }
-
-    return result;
-}
-
 constexpr std::string_view parseEnumMemberName(std::string_view memberString)
 {
     std::string_view memberName = memberString;
@@ -181,7 +160,13 @@ constexpr std::array<EnumType, size> resolveEnumValuesArray(const std::initializ
 
 #define meta_enum(Type, UnderlyingType, ...)\
     enum Type : UnderlyingType { __VA_ARGS__};\
-    constexpr static size_t Type##_internal_size = countEnumMembers(#__VA_ARGS__);\
+    constexpr static size_t Type##_internal_size = ([] ()\
+    {\
+        using IntWrapperType = IntWrapper<UnderlyingType>;\
+        IntWrapperType __VA_ARGS__;\
+        auto init_list = {__VA_ARGS__};\
+        return init_list.size();\
+    }());\
     constexpr static auto Type##_meta = parseEnumMeta<Type, Type##_internal_size>(#__VA_ARGS__, []() {\
         using IntWrapperType = IntWrapper<UnderlyingType>;\
         IntWrapperType __VA_ARGS__;\
@@ -190,7 +175,13 @@ constexpr std::array<EnumType, size> resolveEnumValuesArray(const std::initializ
 
 #define meta_enum_class(Type, UnderlyingType, ...)\
     enum class Type : UnderlyingType { __VA_ARGS__};\
-    constexpr static size_t Type##_internal_size = countEnumMembers(#__VA_ARGS__);\
+    constexpr static size_t Type##_internal_size = ([] ()\
+    {\
+        using IntWrapperType = IntWrapper<UnderlyingType>;\
+        IntWrapperType __VA_ARGS__;\
+        auto init_list = {__VA_ARGS__};\
+        return init_list.size();\
+    }());\
     constexpr static auto Type##_meta = parseEnumMeta<Type, Type##_internal_size>(#__VA_ARGS__, []() {\
         using IntWrapperType = IntWrapper<UnderlyingType>;\
         IntWrapperType __VA_ARGS__;\
