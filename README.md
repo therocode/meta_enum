@@ -81,6 +81,10 @@ For an enum with the name `MyEnum` you will get the following:
  * `std::optional<MetaEnumMember> MyEnum_meta_from_value(MyEnum)` Accesses the meta object for a member found by enum value. Returns nullopt on invalid input.
  * `std::optional<MetaEnumMember> MyEnum_meta_from_index(std::string_view)` Accesses the meta object for a member found by enum member index. Returns nullopt on invalid input.
 
+## Examples
+
+See the file in the repo `examples.cpp`
+
 ## Problems and limitations
 
 ### Clang build errors
