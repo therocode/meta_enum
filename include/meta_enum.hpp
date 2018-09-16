@@ -1,7 +1,7 @@
+#pragma once
 #include <array>
 #include <string_view>
 #include <optional>
-#include <iostream>
 
 template <typename EnumType>
 struct MetaEnumMember
@@ -12,9 +12,10 @@ struct MetaEnumMember
     size_t index = {};
 };
 
-template <typename EnumType, size_t size>
-struct EnumMeta
+template <typename EnumType, typename UnderlyingTypeIn, size_t size>
+struct MetaEnum
 {
+    using UnderlyingType = UnderlyingTypeIn;
     std::string_view string;
     std::array<MetaEnumMember<EnumType>, size> members;
 };
@@ -102,10 +103,10 @@ constexpr std::string_view parseEnumMemberName(std::string_view memberString)
     return std::string_view(memberString.begin() + nameStart, nameSize);
 }
 
-template <typename EnumType, size_t size>
-constexpr EnumMeta<EnumType, size> parseEnumMeta(std::string_view in, const std::array<EnumType, size>& values)
+template <typename EnumType, typename UnderlyingType, size_t size>
+constexpr MetaEnum<EnumType, UnderlyingType, size> parseMetaEnum(std::string_view in, const std::array<EnumType, size>& values)
 {
-    EnumMeta<EnumType, size> result;
+    MetaEnum<EnumType, UnderlyingType, size> result;
     result.string = in;
 
     std::array<std::string_view, size> memberStrings;
@@ -185,12 +186,12 @@ constexpr std::array<EnumType, size> resolveEnumValuesArray(const std::initializ
         auto init_list = {__VA_ARGS__};\
         return init_list.size();\
     }());\
-    constexpr static auto Type##_meta = parseEnumMeta<Type, Type##_internal_size>(#__VA_ARGS__, []() {\
+    constexpr static auto Type##_meta = parseMetaEnum<Type, UnderlyingType, Type##_internal_size>(#__VA_ARGS__, []() {\
         using IntWrapperType = IntWrapper<UnderlyingType>;\
         IntWrapperType __VA_ARGS__;\
         return resolveEnumValuesArray<Type, UnderlyingType, Type##_internal_size>({__VA_ARGS__});\
     }());\
-    constexpr static auto to_string = [](Type e)\
+    constexpr static auto Type##_value_to_name = [](Type e)\
     {\
         for(const auto& member : Type##_meta.members)\
         {\
@@ -238,12 +239,12 @@ constexpr std::array<EnumType, size> resolveEnumValuesArray(const std::initializ
         auto init_list = {__VA_ARGS__};\
         return init_list.size();\
     }());\
-    constexpr static auto Type##_meta = parseEnumMeta<Type, Type##_internal_size>(#__VA_ARGS__, []() {\
+    constexpr static auto Type##_meta = parseMetaEnum<Type, UnderlyingType, Type##_internal_size>(#__VA_ARGS__, []() {\
         using IntWrapperType = IntWrapper<UnderlyingType>;\
         IntWrapperType __VA_ARGS__;\
         return resolveEnumValuesArray<Type, UnderlyingType, Type##_internal_size>({__VA_ARGS__});\
     }());\
-    constexpr static auto to_string = [](Type e)\
+    constexpr static auto Type##_value_to_name = [](Type e)\
     {\
         for(const auto& member : Type##_meta.members)\
         {\
@@ -281,73 +282,3 @@ constexpr std::array<EnumType, size> resolveEnumValuesArray(const std::initializ
         return result;\
     \
     };
-
-////USAGE:
-
-constexpr int getDivFourOfLast(int a, int b, int c)
-{
-    return c;
-}
-
-//works with very complexly defined enum entries
-meta_enum(Hahas, int, Hi, Ho= getDivFourOfLast(1, {(2, ")h(),,\"ej", 1)}, 4 >> 2), Hu =     4,
-He);
-
-//declares enum as Hahas like usual.
-//Provides meta object accessible with Hahas_meta
-
-int main()
-{
-    static_assert(Hahas_meta.members.size() == 4);
-    static_assert(Hahas_meta.members[0].string == "Hi");
-    static_assert(Hahas_meta.members[1].string == " Ho= getDivFourOfLast(1, {(2, \")h(),,\\\"ej\", 1)}, 4 >> 2)");
-    static_assert(Hahas_meta.members[2].string == " Hu = 4");
-    static_assert(Hahas_meta.members[3].string == " He");
-
-    static_assert(Hahas_meta.members[0].name == "Hi");
-    static_assert(Hahas_meta.members[1].name == "Ho");
-    static_assert(Hahas_meta.members[2].name == "Hu");
-    static_assert(Hahas_meta.members[3].name == "He");
-
-    static_assert(Hahas_meta.members[0].value == 0);
-    static_assert(Hahas_meta.members[1].value == 1);
-    static_assert(Hahas_meta.members[2].value == 4);
-    static_assert(Hahas_meta.members[3].value == 5);
-
-    static_assert(Hahas_meta.members[0].index == 0);
-    static_assert(Hahas_meta.members[1].index == 1);
-    static_assert(Hahas_meta.members[2].index == 2);
-    static_assert(Hahas_meta.members[3].index == 3);
-
-    std::cout << "value from name Hu: " << Hahas_meta_from_name("Hu")->value << "\n";
-    std::cout << "value from index Hu: " << Hahas_meta_from_index(2)->value << "\n";
-    std::cout << "value from value Hu: " << Hahas_meta_from_value(Hu)->value << "\n";
-    std::cout << "value to string: " << to_string(Ho) << "\n";
-
-    std::cout << "declared enum: " << Hahas_meta.string << "\n";
-    std::cout << "member strings: \n";
-    for(const auto& enumMember : Hahas_meta.members)
-    {
-        std::cout << enumMember.string << "\n";
-    }
-    std::cout << "member values: \n";
-    for(const auto& enumMember : Hahas_meta.members)
-    {
-        std::cout << enumMember.value << "\n";
-    }
-    std::cout << "member names: \n";
-    for(const auto& enumMember : Hahas_meta.members)
-    {
-        std::cout << "'" << enumMember.name << "'" << "\n";
-    }
-
-    meta_enum_class(Nested, uint8_t, One,Two,Three);
-}
-
-struct T1
-{
-    meta_enum_class(Nested, size_t, One, Two
-    =
-    0b11010101, Three
-    );
-};
