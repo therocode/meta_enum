@@ -191,7 +191,7 @@ constexpr std::array<EnumType, size> resolveEnumValuesArray(const std::initializ
         IntWrapperType __VA_ARGS__;\
         return resolveEnumValuesArray<Type, UnderlyingType, Type##_internal_size>({__VA_ARGS__});\
     }());\
-    constexpr static auto Type##_value_to_name = [](Type e)\
+    constexpr static auto Type##_value_to_string = [](Type e)\
     {\
         for(const auto& member : Type##_meta.members)\
         {\
@@ -244,7 +244,7 @@ constexpr std::array<EnumType, size> resolveEnumValuesArray(const std::initializ
         IntWrapperType __VA_ARGS__;\
         return resolveEnumValuesArray<Type, UnderlyingType, Type##_internal_size>({__VA_ARGS__});\
     }());\
-    constexpr static auto Type##_value_to_name = [](Type e)\
+    constexpr static auto Type##_value_to_string = [](Type e)\
     {\
         for(const auto& member : Type##_meta.members)\
         {\
