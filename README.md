@@ -9,6 +9,8 @@ Single-header facility for compile time reflection of enums in C++17.
  * Tracking of enum size - i.e. member count
  * Look up enum entries by index
  * Convenience functions for converting between all of the above
+ * Supports both enum and enum class
+ * Supports enums nested in types/namespaces/functions
  * Keeps track of the C++ code used to declare the enums
  * Single header standard C++17 magic.
 
