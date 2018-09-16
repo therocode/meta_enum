@@ -75,13 +75,30 @@ constexpr size_t nextEnumCommaOrEnd(size_t start, std::string_view enumString)
     return current;
 }
 
+constexpr bool isAllowedIdentifierChar(char c)
+{
+    return (c >= 'a' && c <= 'z') ||
+           (c >= 'A' && c <= 'a') ||
+           (c >= '0' && c <= '9') ||
+           c == '_';
+}
+
 constexpr std::string_view parseEnumMemberName(std::string_view memberString)
 {
-    std::string_view memberName = memberString;
+    size_t nameStart = 0;
+    while(!isAllowedIdentifierChar(memberString[nameStart]))
+    {
+        ++nameStart;
+    }
 
-    //TODO: parse name
+    size_t nameSize = 0;
 
-    return memberName;
+    while(isAllowedIdentifierChar(memberString[nameStart + nameSize]))
+    {
+        ++nameSize;
+    }
+
+    return std::string_view(memberString.begin() + nameStart, nameSize);
 }
 
 template <typename EnumType, size_t size>
@@ -172,7 +189,7 @@ constexpr std::array<EnumType, size> resolveEnumValuesArray(const std::initializ
         IntWrapperType __VA_ARGS__;\
         return resolveEnumValuesArray<Type, UnderlyingType, Type##_internal_size>({__VA_ARGS__});\
     }());
-
+    
 #define meta_enum_class(Type, UnderlyingType, ...)\
     enum class Type : UnderlyingType { __VA_ARGS__};\
     constexpr static size_t Type##_internal_size = ([] ()\
@@ -210,11 +227,10 @@ int main()
     static_assert(Hahas_meta.members[2].string == " Hu = 4");
     static_assert(Hahas_meta.members[3].string == " He");
 
-    //TODO:
-    //static_assert(Hahas_meta.members[0].name == "Hi");
-    //static_assert(Hahas_meta.members[1].name == "Ho");
-    //static_assert(Hahas_meta.members[2].name == "Hu");
-    //static_assert(Hahas_meta.members[3].name == "He");
+    static_assert(Hahas_meta.members[0].name == "Hi");
+    static_assert(Hahas_meta.members[1].name == "Ho");
+    static_assert(Hahas_meta.members[2].name == "Hu");
+    static_assert(Hahas_meta.members[3].name == "He");
 
     static_assert(Hahas_meta.members[0].value == 0);
     static_assert(Hahas_meta.members[1].value == 1);
@@ -253,10 +269,3 @@ struct T1
     0b11010101, Three
     );
 };
-
-// TODO
-
-//parse enum member name
-
-//errors on clang :'(
-
