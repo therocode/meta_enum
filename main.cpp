@@ -195,6 +195,7 @@ constexpr int getDivFourOfLast(int a, int b, int c)
     return c;
 }
 
+//works with very complexly defined enum entries
 meta_enum(Hahas, int32_t, Hi, Ho= getDivFourOfLast(1, {(2, ")h(),,\"ej", 1)}, 4 >> 2), Hu =     4,
 He);
 
