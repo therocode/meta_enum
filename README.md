@@ -7,8 +7,8 @@ check main.cpp for code/usage or just go here: https://godbolt.org/z/h4HEgq
 ## Usage
 
 ```cpp
-//first argument is enum name, then the values follow
-meta_enum(Hahas, Hi, Ho= 2, Hu =     4,
+//first argument is enum name, second is underlying type, then the values follow with normal enum member declaration rules
+meta_enum(Hahas, int, Hi, Ho= 2, Hu =     4,
 He);
 
 //declares enum as Hahas like a usual usual enum.
