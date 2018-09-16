@@ -23,13 +23,14 @@ constexpr size_t nextEnumCommaOrEnd(size_t start, std::string_view enumString)
     size_t brackets = 0; //()[]{}
     bool quote = false; //""
     char lastChar = '\0';
+    char nextChar = '\0';
 
     auto isNested = [&brackets, &quote] ()
     {
         return brackets != 0 || quote;
     };
 
-    auto feedCounters = [&brackets, &quote, &lastChar] (char c)
+    auto feedCounters = [&brackets, &quote, &lastChar, &nextChar] (char c)
     {
         if(quote)
         {
@@ -46,11 +47,15 @@ constexpr size_t nextEnumCommaOrEnd(size_t start, std::string_view enumString)
                 break;
             case '(':
             case '<':
+                if(lastChar == '<' || nextChar == '<')
+                    break;
             case '{':
                 ++brackets;
                 break;
             case ')':
             case '>':
+                if(lastChar == '>' || nextChar == '>')
+                    break;
             case '}':
                 --brackets;
                 break;
@@ -64,6 +69,7 @@ constexpr size_t nextEnumCommaOrEnd(size_t start, std::string_view enumString)
     {
         feedCounters(enumString[current]);
         lastChar = enumString[current];
+        nextChar = current + 2 < enumString.size() ? enumString[current + 2] : '\0';
     }
 
     return current;
@@ -193,12 +199,12 @@ constexpr std::array<EnumType, size> resolveEnumValuesArray(const std::initializ
 
 ////USAGE:
 
-constexpr int getTwo(int a, int b, int c)
+constexpr int getDivFourOfLast(int a, int b, int c)
 {
-    return 2;
+    return c;
 }
 
-meta_enum(Hahas, int32_t, Hi, Ho= getTwo(1, {(2, ")h(),,\"ej", 1)}, 4), Hu =     4,
+meta_enum(Hahas, int32_t, Hi, Ho= getDivFourOfLast(1, {(2, ")h(),,\"ej", 1)}, 4 >> 2), Hu =     4,
 He);
 
 //declares enum as Hahas like usual.
@@ -208,7 +214,7 @@ int main()
 {
     static_assert(Hahas_meta.members.size() == 4);
     static_assert(Hahas_meta.members[0].string == "Hi");
-    static_assert(Hahas_meta.members[1].string == " Ho= getTwo(1, {(2, \")h(),,\\\"ej\", 1)}, 4)");
+    static_assert(Hahas_meta.members[1].string == " Ho= getDivFourOfLast(1, {(2, \")h(),,\\\"ej\", 1)}, 4 >> 2)");
     static_assert(Hahas_meta.members[2].string == " Hu = 4");
     static_assert(Hahas_meta.members[3].string == " He");
 
@@ -219,7 +225,7 @@ int main()
     //static_assert(Hahas_meta.members[3].name == "He");
 
     static_assert(Hahas_meta.members[0].value == 0);
-    static_assert(Hahas_meta.members[1].value == 2);
+    static_assert(Hahas_meta.members[1].value == 1);
     static_assert(Hahas_meta.members[2].value == 4);
     static_assert(Hahas_meta.members[3].value == 5);
 
