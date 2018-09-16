@@ -70,7 +70,7 @@ int main()
     std::cout << "\n";
 
     //helper functions are defined for convenience that operate on the _meta datastructure
-    //value_to_string prints the name of an enum value and '__INVALID_ENUM_VAL__' on failure
+    //value_to_string gets the name of an enum value and '__INVALID_ENUM_VAL__' on failure
     std::cout << "value_to_string: input=" << Nester::NestedB << " output='" << Nester::Nested_value_to_name(Nester::NestedB) << "'\n";
 
     //these are different ways to access the meta enum member objects. they return an std::optional which will be empty on bad input
