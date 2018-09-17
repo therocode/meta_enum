@@ -82,7 +82,7 @@ constexpr size_t nextEnumCommaOrEnd(size_t start, std::string_view enumString)
 constexpr bool isAllowedIdentifierChar(char c)
 {
     return (c >= 'a' && c <= 'z') ||
-           (c >= 'A' && c <= 'a') ||
+           (c >= 'A' && c <= 'Z') ||
            (c >= '0' && c <= '9') ||
            c == '_';
 }
