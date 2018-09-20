@@ -22,17 +22,19 @@ struct MetaEnum
 
 namespace meta_enum_internal
 {
+
+
+constexpr bool isNested (size_t brackets, bool quote)
+{
+    return brackets != 0 || quote;
+}
+
 constexpr size_t nextEnumCommaOrEnd(size_t start, std::string_view enumString)
 {
     size_t brackets = 0; //()[]{}
     bool quote = false; //""
     char lastChar = '\0';
     char nextChar = '\0';
-
-    auto isNested = [&brackets, &quote] ()
-    {
-        return brackets != 0 || quote;
-    };
 
     auto feedCounters = [&brackets, &quote, &lastChar, &nextChar] (char c)
     {
@@ -69,7 +71,7 @@ constexpr size_t nextEnumCommaOrEnd(size_t start, std::string_view enumString)
     };
 
     size_t current = start;
-    for(; current < enumString.size() && (isNested() || (enumString[current] != ',')); ++current)
+    for(; current < enumString.size() && (isNested(brackets, quote) || (enumString[current] != ',')); ++current)
     {
         feedCounters(enumString[current]);
         lastChar = enumString[current];
