@@ -21,7 +21,8 @@ See compiled code at: https://godbolt.org/z/TaPqPa
  * gcc 7.3 - works
  * gcc 8.1 - works
  * gcc 8.2 - works
- * clang 6.0 on godbolt - broken. See note at the end of this file
+ * clang 6.0 - works - however broken with current stdlib version on godbolt's compiler explorer
+ * MSVC pre 2018 (version on godbolt's compiler explorer) - works for typical case, not for complex enum test case
 
 ## Installation
 
@@ -87,9 +88,10 @@ See the file in the repo `examples.cpp`
 
 ## Problems and limitations
 
-### Clang build errors
+### Build errors
 
-As of clang 6.0 on godbolt this fails to build due to what looks like problems with `std::string_view` not being constexpr even though it should be. See: https://godbolt.org/z/Ob9Cnv
+Some configurations of certain compilers seem to break down when building this. Specifically there is a problem with clang 6.0 on godbolt which fails to build due to what looks like problems with `std::string_view` not being constexpr even though it should be. See: https://godbolt.org/z/Ob9Cnv
+There has also been problems when building with the MSVC Pre 2018 hosted @godbolt.org as well when it builds with the complex test case inside of example.cpp. It works however for the typical case. See: https://godbolt.org/z/rIhpfR
 
 ### Enum parsing problems with nested templates
 
