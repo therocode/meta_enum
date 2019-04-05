@@ -99,7 +99,7 @@ constexpr std::string_view parseEnumMemberName(std::string_view memberString)
 
     size_t nameSize = 0;
 
-    while(isAllowedIdentifierChar(memberString[nameStart + nameSize]))
+    while((nameStart + nameSize) < memberString.size() && isAllowedIdentifierChar(memberString[nameStart + nameSize]))
     {
         ++nameSize;
     }
