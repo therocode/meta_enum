@@ -55,6 +55,7 @@ constexpr size_t nextEnumCommaOrEnd(size_t start, std::string_view enumString)
             case '<':
                 if(lastChar == '<' || nextChar == '<')
                     break;
+                [[fallthrough]];
             case '{':
                 ++brackets;
                 break;
@@ -62,6 +63,7 @@ constexpr size_t nextEnumCommaOrEnd(size_t start, std::string_view enumString)
             case '>':
                 if(lastChar == '>' || nextChar == '>')
                     break;
+                [[fallthrough]];
             case '}':
                 --brackets;
                 break;
